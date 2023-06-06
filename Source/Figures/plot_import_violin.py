@@ -2,7 +2,8 @@
 
 # plot_import_violin.py
 #
-# Use the intermediate files from the MATLAB script to generate violin plots.
+# Use the intermediate files from the MATLAB script frequency_stats.m to generate violin plots.
+import math
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,16 +18,17 @@ SYMPTOMATIC_LABEL = ['Asymptomatic', 'Symptomatic']
 
 # Prepare the figure to work with
 matplotlib.rc_file('include/matplotlibrc-violin')
-fig, axs = plt.subplots(nrows=3, ncols=2, sharey=True, sharex=True)
+fig, axs = plt.subplots(nrows=4, ncols=2, sharey=True, sharex=True)
 plot = 0
 
 # Iterate over the primary combinations
-for frequency in [3, 6, 9]:
+for frequency in [1, 3, 6, 9]:
     for symptomatic in [0, 1]:
 
-        # Load the data from disk and mask out the infinate values and NaN
+        # Load the data from disk and mask out the infinite values and NaN
         filename = "intermediate/final-frequency-{}-symptomatic-{}.csv".format(frequency, symptomatic)
         df = np.genfromtxt(filename, delimiter=',')
+        df[df == -np.inf] = math.log10(math.pow(10, -8))
         mask = ~np.isinf(df) & ~np.isnan(df)
         data = [d[m] for d, m in zip(df.T, mask.T)]
         
@@ -67,7 +69,7 @@ for frequency in [3, 6, 9]:
         # Set the axis labels
         if plot % 2 == 1:
             ax.set_ylabel(r'580Y Frequency ($log_{10})$')
-        if plot > 4:
+        if plot > 6:
             ax.set_xlabel('Month of Importation')
 
 # Save the plot

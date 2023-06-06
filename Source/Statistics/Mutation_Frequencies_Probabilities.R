@@ -1,11 +1,12 @@
 
 library(stats)
 
+
 setwd('')
 
 # Pull in data, retain necessary observations for analysis
 
-dat0 = read.csv('bfa-merged.csv')
+dat0 = read.csv('BFA_Data/bfa-merged 1.csv')
 
 dat = NULL
 ids = unique(dat0$replicateid)
@@ -74,6 +75,10 @@ compare.months.within = function(dat.subset) {
 }
 
 
+# 1 per month, asymptomatic
+dat.1.a = dat[which(dat$imports == 1 & dat$symptomatic == 0), ]
+kw1a = compare.months.within(dat.1.a)
+
 # 3 per month, asymptomatic
 dat.3.a = dat[which(dat$imports == 3 & dat$symptomatic == 0), ]
 kw3a = compare.months.within(dat.3.a)
@@ -86,6 +91,10 @@ kw6a = compare.months.within(dat.6.a)
 dat.9.a = dat[which(dat$imports == 9 & dat$symptomatic == 0), ]
 kw9a = compare.months.within(dat.9.a)
 
+
+# 1 per month, symptomatic
+dat.1.s = dat[which(dat$imports == 1 & dat$symptomatic == 1), ]
+kw1s = compare.months.within(dat.1.s)
 
 # 3 per month, symptomatic
 dat.3.s = dat[which(dat$imports == 3 & dat$symptomatic == 1), ]
@@ -132,16 +141,18 @@ diff.pairs.seas = function(diff.tab) {
 	
 }
 
+d.1.a = diff.pairs.seas(kw1a$freq.diff)
 d.3.a = diff.pairs.seas(kw3a$freq.diff)
 d.6.a = diff.pairs.seas(kw6a$freq.diff)
 d.9.a = diff.pairs.seas(kw9a$freq.diff)
 
+d.1.s = diff.pairs.seas(kw1s$freq.diff)
 d.3.s = diff.pairs.seas(kw3s$freq.diff)
 d.6.s = diff.pairs.seas(kw6s$freq.diff)
 d.9.s = diff.pairs.seas(kw9s$freq.diff)
 
-mean(c(d.3.a[[1]], d.6.a[[1]], d.9.a[[1]], d.3.s[[1]], d.6.s[[1]], d.9.s[[1]]))
-mean(c(d.3.a[[2]], d.6.a[[2]], d.9.a[[2]], d.3.s[[2]], d.6.s[[2]], d.9.s[[2]]))
+mean(c(d.1.a[[1]], d.3.a[[1]], d.6.a[[1]], d.9.a[[1]], d.1.s[[1]], d.3.s[[1]], d.6.s[[1]], d.9.s[[1]]))
+mean(c(d.1.a[[2]], d.3.a[[2]], d.6.a[[2]], d.9.a[[2]], d.1.s[[2]], d.3.s[[2]], d.6.s[[2]], d.9.s[[2]]))
 
 
 
@@ -149,14 +160,15 @@ mean(c(d.3.a[[2]], d.6.a[[2]], d.9.a[[2]], d.3.s[[2]], d.6.s[[2]], d.9.s[[2]]))
 # 2. Difference in (a)symptomatic within months
 ####
 
-sympt.month.W = matrix(NA, nrow = 3, ncol = 12)
-rownames(sympt.month.W) = 3 * c(1:3); colnames(sympt.month.W) = c(1:12)
+sympt.month.W = matrix(NA, nrow = 4, ncol = 12)
+rownames(sympt.month.W) = c(1, 3 * c(1:3)); colnames(sympt.month.W) = c(1:12)
 sympt.month.p = sympt.month.W
 
 for (i in 1:nrow(sympt.month.W)) {
 	for (j in 1:ncol(sympt.month.W)) {
 		
-		temp = dat[which(dat$imports == (i*3) & dat$month == j), ]
+#		temp = dat[which(dat$imports == (i*3) & dat$month == j), ]
+		temp = dat[which(dat$imports == as.numeric(rownames(sympt.month.W)[i]) & dat$month == j), ]
 		temp$freq580y = temp$weightedoccurrences / temp$infectedindividuals
 		temp$freq580y[which(temp$freq580y == 0)] = 1e-8
 		temp$freq580y = log(temp$freq580y, base = 10)
@@ -218,6 +230,10 @@ compare.months.probest = function(dat.subset) {
 }
 
 
+# 1 per month, asymptomatic
+dat.1.a = dat[which(dat$imports == 1 & dat$symptomatic == 0), ]
+p1a = compare.months.probest(dat.1.a)
+
 # 3 per month, asymptomatic
 dat.3.a = dat[which(dat$imports == 3 & dat$symptomatic == 0), ]
 p3a = compare.months.probest(dat.3.a)
@@ -229,6 +245,10 @@ p6a = compare.months.probest(dat.6.a)
 # 9 per month, asymptomatic
 dat.9.a = dat[which(dat$imports == 9 & dat$symptomatic == 0), ]
 p9a = compare.months.probest(dat.9.a)
+
+# 1 per month, symptomatic
+dat.1.s = dat[which(dat$imports == 1 & dat$symptomatic == 1), ]
+p1s = compare.months.probest(dat.1.s)
 
 # 3 per month, symptomatic
 dat.3.s = dat[which(dat$imports == 3 & dat$symptomatic == 1), ]
@@ -254,14 +274,14 @@ p9s = compare.months.probest(dat.9.s)
 
 # Chi squared tests for proportions
 
-est.sympt.month.X2 = matrix(NA, nrow = 3, ncol = 12)
-rownames(est.sympt.month.X2) = 3 * c(1:3); colnames(est.sympt.month.X2) = c(1:12)
+est.sympt.month.X2 = matrix(NA, nrow = 4, ncol = 12)
+rownames(est.sympt.month.X2) = c(1, 3 * c(1:3)); colnames(est.sympt.month.X2) = c(1:12)
 est.sympt.month.p = est.sympt.month.X2
 
 for (i in 1:nrow(est.sympt.month.X2)) {
 	for (j in 1:ncol(est.sympt.month.X2)) {
 		
-		temp = dat[which(dat$imports == (i*3) & dat$month == j), ]
+		temp = dat[which(dat$imports == as.numeric(rownames(est.sympt.month.X2)[i]) & dat$month == j), ]
 		temp$freq580y = temp$weightedoccurrences / temp$infectedindividuals
 		temp$freq580y[which(temp$freq580y == 0)] = 1e-8
 		temp$freq580y = log(temp$freq580y, base = 10)
@@ -290,7 +310,7 @@ compare.imports.probtest = function(dat.subset) {
 	dat.subset$ht.month = 1 * (dat.subset$month %in% c(6:10))
 	
 	est.vec = NULL; tot.vec = NULL
-	for (i in c(3, 6, 9)) {
+	for (i in c(1, 3, 6, 9)) {
 		est.vec = c(est.vec, sum(dat.subset$estab[dat.subset$imports == i]))
 		tot.vec = c(tot.vec, sum(dat.subset$imports == i))
 	}
@@ -298,12 +318,12 @@ compare.imports.probtest = function(dat.subset) {
 	not.vec = tot.vec - est.vec
 	
 	
-	prop.table.X2 = matrix(NA, nrow = 3, ncol = 3)
-	rownames(prop.table.X2) = colnames(prop.table.X2) = c(3, 6, 9)
+	prop.table.X2 = matrix(NA, nrow = 4, ncol = 4)
+	rownames(prop.table.X2) = colnames(prop.table.X2) = c(1, 3, 6, 9)
 	prop.table.p = prop.table.X2
 	
-	for (i in 1:2) {
-		for (j in (i+1):3) {
+	for (i in 1:3) {
+		for (j in (i+1):4) {
 			
 			# test.i = prop.test(est.vec[c(i, j)], tot.vec[c(i, j)])
 			chsq = sum((est.vec[c(i, j)] - mean(est.vec[c(i, j)]))^2) / mean(est.vec[c(i, j)]) + 
