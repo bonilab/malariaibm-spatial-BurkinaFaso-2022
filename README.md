@@ -4,6 +4,8 @@
 
 ---
 
+[![DOI](https://zenodo.org/badge/528557806.svg)](https://zenodo.org/doi/10.5281/zenodo.10593955)
+
 # Overview
 
 This repository contains a frozen snapshot of the code and intermediate data used for the manuscript "Role of Seasonal Importation and Random Genetic Drift on Selection for Drug-Resistant Genotypes of *Plasmodium falciparum* in High Transmission Settings" by Zupko et al. (2024). Due to the size of the intermediate data (67.6 MB) this repository uses [Git Large File Storage](https://git-lfs.github.com/) and may be limited in terms of bandwidth as a result.  All studies run by the simulation use YAML files (in `Studies`) to provide the configuration and ASC files (in `Data/GIS`) for spatial data. 
